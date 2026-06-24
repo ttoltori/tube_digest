@@ -10,6 +10,9 @@ export async function GET(request: Request) {
     const supabase = createClient()
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
+    console.log('[callback] error:', JSON.stringify(error))
+    console.log('[callback] session:', data?.session?.user?.email ?? 'null')
+
     if (!error && data.session) {
       const providerToken = data.session.provider_token
       const providerRefreshToken = data.session.provider_refresh_token

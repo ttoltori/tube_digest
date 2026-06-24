@@ -1,24 +1,7 @@
-'use client'
-
-import { createClient } from '@/lib/supabase/client'
 import { Play, Shield, Clock, Globe } from 'lucide-react'
+import { signInWithGoogle } from './actions'
 
 export default function LoginPage() {
-  const supabase = createClient()
-
-  const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        scopes: 'https://www.googleapis.com/auth/youtube.readonly',
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
-      },
-    })
-  }
 
   return (
     <div className="min-h-screen bg-[#0d0d1a] flex items-center justify-center px-4">
@@ -45,8 +28,9 @@ export default function LoginPage() {
 
         {/* Login Card */}
         <div className="glass rounded-2xl p-8">
+          <form action={signInWithGoogle}>
           <button
-            onClick={handleGoogleLogin}
+            type="submit"
             className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -69,6 +53,7 @@ export default function LoginPage() {
             </svg>
             Google로 계속하기
           </button>
+          </form>
 
           {/* Permissions info */}
           <div className="mt-6 space-y-3">

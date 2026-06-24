@@ -72,12 +72,14 @@ export async function POST(req: NextRequest) {
 
     // Update user stats
     const durationEstimate = 30 // minutes saved estimate
-    await supabase.rpc('increment_profile_stats', {
-      user_id: user.id,
-      time_saved: durationEstimate,
-    }).catch(() => {
+    try {
+      await supabase.rpc('increment_profile_stats', {
+        user_id: user.id,
+        time_saved: durationEstimate,
+      })
+    } catch {
       // RPC might not exist yet; ignore
-    })
+    }
 
     return NextResponse.json({
       id: savedSummary?.id,
