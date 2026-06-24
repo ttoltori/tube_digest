@@ -82,6 +82,11 @@ ${description.slice(0, 2000)}
     }
   } catch (error) {
     console.error('OpenAI summarization error:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      errorObject: error,
+    })
     return {
       summary: '요약 생성 중 오류가 발생했습니다.',
       keyPoints: [],

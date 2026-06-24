@@ -28,13 +28,28 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (existing) {
-      return NextResponse.json({
-        id: existing.id,
-        summary: existing.summary_ko,
-        keyPoints: existing.key_points,
-        readingTime: existing.reading_time,
-      })
+      // Skip cache if it contains an error message
+      const isErrorSummary = existing.summary_ko.includes('오류가 발생했습니다')
+      
+      if (isErrorSummary) {
+        console.log('JSJ Cache contains error for video:', videoId, 'regenerating...')
+        // Delete the error entry
+        await supabase
+          .from('summaries')
+          .delete()
+          .eq('id', existing.id)
+      } else {
+        console.log('JSJ Cache hit for video:', videoId, 'summary:', existing.summary_ko.substring(0, 50))
+        return NextResponse.json({
+          id: existing.id,
+          summary: existing.summary_ko,
+          keyPoints: existing.key_points,
+          readingTime: existing.reading_time,
+        })
+      }
     }
+
+    console.log('JSJ Cache miss for video:', videoId, 'generating new summary...')
 
     // Ensure video is cached
     const { error: videoUpsertError } = await supabase.from('videos').upsert(
@@ -55,7 +70,8 @@ export async function POST(req: NextRequest) {
 
     // Generate AI summary
     const result = await summarizeVideo(title, description || '', channelTitle || '', language || 'ko', lengthType)
-
+    console.log('JSJ AI summary result:', result)
+    
     // Store summary
     const { data: savedSummary } = await supabase
       .from('summaries')
